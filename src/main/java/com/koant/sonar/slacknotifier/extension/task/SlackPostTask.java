@@ -37,15 +37,6 @@ public class SlackPostTask extends AbstractSlackNotifyingComponent implements Po
         this.cp = new CustomProperties(mSettings);
     }
 
-    // post
-//    public SlackPostTask(CustomProperties cp) {
-//        super(cp);
-//        this.slackClient = Slack.getInstance();
-//        this.i18n = null;
-//        this.mSettings = cp.getSettings();
-//        this.cp = cp;
-//    }
-    
     @Override
     public void finished(ProjectAnalysis analysis) {
 

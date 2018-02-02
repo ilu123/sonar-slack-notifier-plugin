@@ -16,6 +16,7 @@ import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.PostJobDescriptor;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -55,50 +56,63 @@ public class GitPostTask implements PostJob {
     @Override
     public void execute(PostJobContext context) {
         LOG.info("General22222: "+mSettings.getProperties());
-        
+
+        String pjfull = context.settings().getString("sonar.projectName") +" @"+ context.settings().getString("sonar.projectVersion");
+        String notes = "Passed!";
         StringBuilder msg = new StringBuilder();
+        List<Field> fields = new ArrayList<>();
+        List<Attachment> attachments = new ArrayList<>();
+        
         if (!context.analysisMode().isPublish()) {
             context.issues().forEach(new Consumer<PostJobIssue>() {
-
                 @Override
                 public void accept(PostJobIssue t) {
-                    msg.append("\r\n" + t.message());
+                    msg.append("\n" + t.componentKey() + " -> Line "+t.line() + ": " + t.message());
+                    Field fd = fields.stream().filter(f->f.getTitle().equalsIgnoreCase(t.componentKey())).findAny().orElse(null);
+                    if (fd != null) {
+                        fd.setValue(fd.getValue()+"\n"+"  Line "+t.line()+": "+t.message());
+                    }else{
+                        fields.add(Field.builder()
+                            .title(t.componentKey())
+                            .value("  Line "+t.line()+": "+t.message())
+                            .valueShortEnough(false)
+                            .build());
+                    }
                 }
             });
+            
       
-            LOG.info("MSG33333: "+msg.toString());
-            
-            boolean ok = true;
-            String pjfull = context.settings().getString("sonar.projectName") +"-"+ context.settings().getString("sonar.projectVersion");
-            String notes = "Passed!";
-            if (msg.length() > 4) {
-                ok = false;
+            if (!fields.isEmpty()) {
                 notes = "Issues: "+"\r\n"+msg.toString();
+                attachments.add(Attachment.builder()
+                        .fields(fields)
+                        .color("warning")
+                        .build());
+            }else{
+                fields.add(Field.builder()
+                        .value("Passed!")
+                        .valueShortEnough(false)
+                        .build());
+                attachments.add(Attachment.builder()
+                        .title(":100: :airplane: " + pjfull+"\r\n")
+                        .fields(fields)
+                        .color("good")
+                        .build());
             }
-            sendGitNote(cp.projectHost(),
-                    cp.projectId(),
-                    cp.mergeRequestIid(),
-                    "SonarQube: "+pjfull + "\r\n" + notes);
-            
+            if (cp.gitNoteEnable()) {
+                sendGitNote(cp.projectHost(),
+                            cp.projectId(),
+                            cp.mergeRequestIid(),
+                            "SonarQube: "+pjfull + "\r\n" + notes);
+            }
             // Slack
-            List<Field> fields = new ArrayList<>();
-            fields.add(Field.builder().title(pjfull)
-                    .value(notes+"")
-                    .valueShortEnough(false)
-                    .build());
-            
-            List<Attachment> attachments = new ArrayList<>();
-            attachments.add(Attachment.builder()
-                    .fields(fields)
-                    .color(ok ? "good" : "warning")
-                    .build());
-            
             Payload payload = Payload.builder()
-            .channel(cp.slackChannel())
-            .username(context.settings().getString("ckss.user"))
-            .text(notes)
-            .attachments(fields.size() > 0 ? attachments : null)
-            .build();
+                    .channel(cp.slackChannel())
+                    .username(context.settings().getString("ckss.user"))
+                    .text("Analyzed MergeRequest !" + cp.mergeRequestIid() + 
+                            (fields.isEmpty() ? "" : " At: \n :rage: :underage: " + pjfull))
+                    .attachments(attachments)
+                    .build();
 
             try {
                 WebhookResponse response = Slack.getInstance().send(context.settings().getString(SlackNotifierProp.HOOK.property()), payload);

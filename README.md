@@ -44,6 +44,7 @@ Notifications can be sent for all Quality Gate statuses, or just for WARNING/ERR
 #Enable MergeRequest analysise to Git notes and to Slack
     property "sonar.cks.mr.iid", "2"
     property "sonar.cks.mr.channel", "slack-channel-name"
+    property "sonar.cks.mr.note", "true/false" #if commit notes when analysis done
     property "sonar.cks.project.host", "https://xxxxx/gitlab"
     property "sonar.cks.project.id", "66"
     property "sonar.cks.git.token", "git-api-token"

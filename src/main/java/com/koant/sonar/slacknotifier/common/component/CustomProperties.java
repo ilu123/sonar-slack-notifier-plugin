@@ -20,6 +20,7 @@ public class CustomProperties {
     public static final String GIT_MR_IID = "sonar.cks.mr.iid";
     public static final String GIT_PROJ_ID = "sonar.cks.project.id";
     public static final String GIT_TOKEN = "sonar.cks.git.token";
+    public static final String GIT_NOTE_ENABLE = "sonar.cks.mr.note";
     public static final String GIT_SLACK_CHANNEL = "sonar.cks.mr.channel";
     
     public static final String CATEGORY = "Slack";
@@ -56,17 +57,21 @@ public class CustomProperties {
     public String gitToken(){
         return this.mSettings.getString(GIT_TOKEN);
     }
+    
+    public boolean gitNoteEnable(){
+        return this.mSettings.getBoolean(GIT_NOTE_ENABLE);
+    }
 
     public static List<PropertyDefinition> getProperties() {
       return asList(
         PropertyDefinition.builder(GIT_PROJ_HOST)
-        .category(CATEGORY)
-          .name(GIT_PROJ_HOST)
-          .subCategory(SUB_CATEGORY)
-          .defaultValue("")
-          .description("")
-          .onQualifiers(Qualifiers.PROJECT)
-          .build(),
+            .category(CATEGORY)
+            .name(GIT_PROJ_HOST)
+            .subCategory(SUB_CATEGORY)
+            .defaultValue("")
+            .description("")
+            .onQualifiers(Qualifiers.PROJECT)
+            .build(),
           PropertyDefinition.builder(GIT_TOKEN)
           .category(CATEGORY)
             .name(GIT_TOKEN)
@@ -83,6 +88,14 @@ public class CustomProperties {
               .description("")
               .onQualifiers(Qualifiers.PROJECT)
               .build(),
+              PropertyDefinition.builder(GIT_NOTE_ENABLE)
+              .category(CATEGORY)
+                .name(GIT_NOTE_ENABLE)
+                .subCategory(SUB_CATEGORY)
+                .defaultValue("true")
+                .description("")
+                .onQualifiers(Qualifiers.PROJECT)
+                .build(),
         PropertyDefinition.builder(GIT_MR_IID)
           .category(CATEGORY)
           .name(GIT_MR_IID)
