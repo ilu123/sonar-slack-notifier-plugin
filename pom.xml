@@ -22,9 +22,9 @@
   </properties>
 
   <scm>
-    <connection>scm:git:git@github.com:kogitant/sonar-slack-notifier-plugin.git</connection>
-    <url>scm:git:git@github.com:kogitant/sonar-slack-notifier-plugin.git</url>
-    <developerConnection>scm:git:git@github.com:kogitant/sonar-slack-notifier-plugin.git</developerConnection>
+    <connection>scm:git:git@github.com:ilu123/sonar-slack-notifier-plugin.git</connection>
+    <url>scm:git:git@github.com:ilu123/sonar-slack-notifier-plugin.git</url>
+    <developerConnection>scm:git:git@github.com:ilu123/sonar-slack-notifier-plugin.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
   
@@ -147,11 +147,11 @@
           <pluginName>CKS Slack Notifier</pluginName>
           <pluginDescription>Sends notifications to Slack</pluginDescription>
           <sonarQubeMinVersion>6.1</sonarQubeMinVersion>
-          <pluginUrl>https://github.com/kogitant/sonar-slack-notifier-plugin</pluginUrl>
-          <pluginIssueTrackerUrl>https://github.com/kogitant/sonar-slack-notifier-plugin/issues</pluginIssueTrackerUrl>
-          <pluginSourcesUrl>https://github.com/kogitant/sonar-slack-notifier-plugin</pluginSourcesUrl>
-          <pluginOrganizationName>Antti Koivisto</pluginOrganizationName>
-          <pluginOrganizationUrl>https://github.com/kogitant</pluginOrganizationUrl>
+          <pluginUrl>https://github.com/ilu123/sonar-slack-notifier-plugin</pluginUrl>
+          <pluginIssueTrackerUrl>https://github.com/ilu123/sonar-slack-notifier-plugin/issues</pluginIssueTrackerUrl>
+          <pluginSourcesUrl>https://github.com/ilu123/sonar-slack-notifier-plugin</pluginSourcesUrl>
+          <pluginOrganizationName>ilu123</pluginOrganizationName>
+          <pluginOrganizationUrl>https://github.com/ilu123</pluginOrganizationUrl>
         </configuration>
       </plugin>
     </plugins>

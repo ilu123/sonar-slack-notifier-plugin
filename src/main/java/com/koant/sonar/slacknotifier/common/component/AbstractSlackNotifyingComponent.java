@@ -1,14 +1,21 @@
 package com.koant.sonar.slacknotifier.common.component;
 
-import com.koant.sonar.slacknotifier.common.SlackNotifierProp;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.koant.sonar.slacknotifier.common.SlackNotifierProp;
 
 /**
  * Abstract base component for Slack notifying Sonar extensions.
@@ -18,12 +25,15 @@ public abstract class AbstractSlackNotifyingComponent {
 
     private static final Logger LOG = Loggers.get(AbstractSlackNotifyingComponent.class);
 
-    private final Settings settings;
+    private Settings settings;
     private Map<String, ProjectConfig> projectConfigMap = Collections.emptyMap();
 
-    public AbstractSlackNotifyingComponent(Settings settings) {
+    public AbstractSlackNotifyingComponent(CustomProperties cp){this.settings = cp.getSettings();}
+    public AbstractSlackNotifyingComponent(Settings settings){ this.settings = settings;}
+    
+    public void init(Settings settings) {
         this.settings = settings;
-        LOG.info("Constructor called, project slack channel config map constructed from general settings");
+        LOG.info("Init called, project slack channel config map constructed from general settings");
     }
 
     /**
@@ -63,6 +73,7 @@ public abstract class AbstractSlackNotifyingComponent {
     protected boolean isPluginEnabled() {
         return settings.getBoolean(SlackNotifierProp.ENABLED.property());
     }
+    
 
     /**
      * Returns the sonar server url, with a trailing /

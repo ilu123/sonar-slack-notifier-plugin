@@ -37,10 +37,12 @@ public enum SlackNotifierProp {
      * @see SlackNotifierPlugin#define(org.sonar.api.Plugin.Context)
      */
     CONFIG("ckss.projectconfig"),
+    
     /**
      * @see SlackNotifierProp#CONFIG
      */
     PROJECT("project"),
+
     /**
      * @see SlackNotifierProp#CONFIG
      */

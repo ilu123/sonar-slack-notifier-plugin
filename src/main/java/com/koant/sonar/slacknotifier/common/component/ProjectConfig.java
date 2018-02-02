@@ -19,7 +19,7 @@ public class ProjectConfig {
         this.slackChannel = slackChannel;
         this.qgFailOnly = qgFailOnly;
     }
-
+    
     /**
      * Cloning constructor
      *
@@ -42,7 +42,7 @@ public class ProjectConfig {
     public String getProjectKey() {
         return projectKey;
     }
-
+    
     public String getSlackChannel() {
         return slackChannel;
     }

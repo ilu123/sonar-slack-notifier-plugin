@@ -24,10 +24,10 @@ import java.util.stream.Collectors;
 public class ProjectAnalysisPayloadBuilder {
     private static final Logger LOG = Loggers.get(ProjectAnalysisPayloadBuilder.class);
 
-    private static final String SLACK_GOOD_COLOUR = "good";
-    private static final String SLACK_WARNING_COLOUR = "warning";
-    private static final String SLACK_DANGER_COLOUR = "danger";
-    private static final Map<QualityGate.Status, String> statusToColor = new EnumMap<>(QualityGate.Status.class);
+    public static final String SLACK_GOOD_COLOUR = "good";
+    public static final String SLACK_WARNING_COLOUR = "warning";
+    public static final String SLACK_DANGER_COLOUR = "danger";
+    public static final Map<QualityGate.Status, String> statusToColor = new EnumMap<>(QualityGate.Status.class);
 
     static {
         statusToColor.put(QualityGate.Status.OK, SLACK_GOOD_COLOUR);
@@ -78,12 +78,14 @@ public class ProjectAnalysisPayloadBuilder {
         assertNotNull(projectConfig, "projectConfig");
         assertNotNull(projectUrl, "projectUrl");
         assertNotNull(slackUser, "slackUser");
-        assertNotNull(i18n, "i18n");
+        //assertNotNull(i18n, "i18n");
         assertNotNull(analysis, "analysis");
 
         QualityGate qualityGate = analysis.getQualityGate();
         String shortText = String.join("",
-                "Project [", analysis.getProject().getName(), "] analyzed. See ",
+                "Project [", analysis.getProject().getName(), 
+                
+                "] analyzed. See ",
                 projectUrl,
                 qualityGate == null ? "." : ". Quality gate status: " + qualityGate.getStatus());
 
@@ -129,7 +131,7 @@ public class ProjectAnalysisPayloadBuilder {
      */
     private Field translate(QualityGate.Condition condition) {
         String i18nKey = "metric." + condition.getMetricKey() + ".name";
-        String conditionName = i18n.message(Locale.ENGLISH, i18nKey, condition.getMetricKey());
+        String conditionName = i18n == null ? condition.getMetricKey() : i18n.message(Locale.ENGLISH, i18nKey, condition.getMetricKey());
 
         if (QualityGate.EvaluationStatus.NO_VALUE.equals(condition.getStatus())) {
             // No value for given metric

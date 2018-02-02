@@ -1,15 +1,25 @@
 package com.koant.sonar.slacknotifier;
 
-import com.koant.sonar.slacknotifier.extension.task.SlackPostProjectAnalysisTask;
+import static com.koant.sonar.slacknotifier.common.SlackNotifierProp.CHANNEL;
+import static com.koant.sonar.slacknotifier.common.SlackNotifierProp.CONFIG;
+import static com.koant.sonar.slacknotifier.common.SlackNotifierProp.ENABLED;
+import static com.koant.sonar.slacknotifier.common.SlackNotifierProp.HOOK;
+import static com.koant.sonar.slacknotifier.common.SlackNotifierProp.PROJECT;
+import static com.koant.sonar.slacknotifier.common.SlackNotifierProp.QG_FAIL_ONLY;
+import static com.koant.sonar.slacknotifier.common.SlackNotifierProp.USER;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyFieldDefinition;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.koant.sonar.slacknotifier.common.SlackNotifierProp.*;
+import com.koant.sonar.slacknotifier.common.component.CustomProperties;
+import com.koant.sonar.slacknotifier.extension.task.GitPostTask;
+import com.koant.sonar.slacknotifier.extension.task.SlackPostProjectAnalysisTask;
+import com.koant.sonar.slacknotifier.extension.task.SlackPostTask;
 
 public class SlackNotifierPlugin implements Plugin {
 
@@ -18,6 +28,12 @@ public class SlackNotifierPlugin implements Plugin {
 
     @Override
     public void define(Context context) {
+        // The props from sensor
+        context.addExtensions(CustomProperties.getProperties());
+        context.addExtension(CustomProperties.class);
+        context.addExtension(SlackPostTask.class);
+        context.addExtension(GitPostTask.class);
+        
         List<Object> extensions = new ArrayList<>();
 
         // The configurable properties
@@ -25,10 +41,12 @@ public class SlackNotifierPlugin implements Plugin {
 
         // The actual plugin component(s)
         extensions.add(SlackPostProjectAnalysisTask.class);
-
+        
         context.addExtensions(extensions);
+
     }
 
+    
     private void addPluginPropertyDefinitions(List<Object> extensions) {
         extensions.add(PropertyDefinition.builder(HOOK.property())
             .name("Slack web integration hook")
@@ -56,8 +74,6 @@ public class SlackNotifierPlugin implements Plugin {
             .subCategory(SUBCATEGORY)
             .index(2)
             .build());
-
-
         extensions.add(
             PropertyDefinition.builder(CONFIG.property())
                 .name("Project specific configuration")
@@ -77,12 +93,13 @@ public class SlackNotifierPlugin implements Plugin {
                         .description("Channel to send project specific messages to")
                         .type(PropertyType.STRING)
                         .build(),
-                        PropertyFieldDefinition.build(QG_FAIL_ONLY.property())
-                        .name("Send on failed Quality Gate")
-                        .description("Should notification be sent only if Quality Gate did not pass OK")
-                        .type(PropertyType.BOOLEAN)
-                        .build()
+                    PropertyFieldDefinition.build(QG_FAIL_ONLY.property())
+                    .name("Send on failed Quality Gate")
+                    .description("Should notification be sent only if Quality Gate did not pass OK")
+                    .type(PropertyType.BOOLEAN)
+                    .build()
                 )
                 .build());
+
     }
 }
