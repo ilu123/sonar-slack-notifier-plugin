@@ -7,6 +7,21 @@ The plugin uses Incoming Web Hook as the integration mechanism with Slack.
 # Install
 The plugin must be placed in *SONAR_HOME/extensions/plugins* directory and SonarQube must be restarted.
 
+## Enable MergeRequest analysise to Git notes and to Slack
+
+    property "sonar.cks.mr.iid", "2"
+    property "sonar.cks.mr.channel", "slack-channel-name"
+    property "sonar.cks.mr.note", "true/false" #if commit notes when analysis done
+    property "sonar.cks.project.host", "https://xxxxx/gitlab"
+    property "sonar.cks.project.id", "66"
+    property "sonar.cks.git.token", "git-api-token"
+    
+The sonar cmd called from shell like:
+```
+gradle sonar --info -Dsonar.analysis.mode=preview <-Dabove.props.if.not.set.in.gradle>
+
+```
+
 ## Using latest release
 You can find the latest release from https://github.com/kogitant/sonar-slack-notifier-plugin/releases/ page.
 Download the 
@@ -41,19 +56,6 @@ The project key supports wildcards at the end. See https://github.com/kogitant/s
 ## Only send notification when Quality Gate fails
 Notifications can be sent for all Quality Gate statuses, or just for WARNING/ERROR statuses. See https://github.com/kogitant/sonar-slack-notifier-plugin/issues/1 
 
-#Enable MergeRequest analysise to Git notes and to Slack
-    property "sonar.cks.mr.iid", "2"
-    property "sonar.cks.mr.channel", "slack-channel-name"
-    property "sonar.cks.mr.note", "true/false" #if commit notes when analysis done
-    property "sonar.cks.project.host", "https://xxxxx/gitlab"
-    property "sonar.cks.project.id", "66"
-    property "sonar.cks.git.token", "git-api-token"
-    
-The sonar cmd called from shell like:
-```
-gradle sonar --info -Dsonar.analysis.mode=preview <-Dabove.props.if.not.set.in.gradle>
-
-```
  
 # Example messages posted to Slack
 ## New bug introduced

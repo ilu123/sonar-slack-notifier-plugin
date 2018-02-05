@@ -49,8 +49,12 @@ public class GitPostTask implements PostJob {
     
     @Override
     public void describe(PostJobDescriptor descriptor) {
-        descriptor.name("Slack Post Task").requireProperties(CustomProperties.GIT_MR_IID, CustomProperties.GIT_PROJ_HOST, CustomProperties.GIT_PROJ_ID
-                , CustomProperties.GIT_SLACK_CHANNEL, CustomProperties.GIT_TOKEN);
+        descriptor.name("Slack Post Task").requireProperties(
+                CustomProperties.GIT_MR_IID,
+                CustomProperties.GIT_PROJ_HOST, 
+                CustomProperties.GIT_PROJ_ID,
+                CustomProperties.GIT_SLACK_CHANNEL,
+                CustomProperties.GIT_TOKEN);
     }
 
     @Override
