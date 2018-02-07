@@ -71,26 +71,32 @@ public class GitPostTask implements PostJob {
             context.issues().forEach(new Consumer<PostJobIssue>() {
                 @Override
                 public void accept(PostJobIssue t) {
-                    msg.append("\n" + t.componentKey() + " -> Line "+t.line() + ": " + t.message());
-                    Field fd = fields.stream().filter(f->f.getTitle().equalsIgnoreCase(t.componentKey())).findAny().orElse(null);
-                    if (fd != null) {
-                        fd.setValue(fd.getValue()+"\n"+"  Line "+t.line()+": "+t.message());
-                    }else{
-                        fields.add(Field.builder()
-                            .title(t.componentKey())
-                            .value("  Line "+t.line()+": "+t.message())
-                            .valueShortEnough(false)
-                            .build());
-                    }
+                    msg.append("\r\n* " + t.componentKey() + " -> Line "+t.line() + ": " + t.message());
+//                    Field fd = fields.stream().filter(f->f.getTitle().equalsIgnoreCase(t.componentKey())).findAny().orElse(null);
+//                    if (fd != null) {
+//                        fd.setValue(fd.getValue()+"\r\n"+"  Line "+t.line()+": "+t.message());
+//                    }else{
+//                        fields.add(Field.builder()
+//                            .title(t.componentKey())
+//                            .value("  Line "+t.line()+": "+t.message())
+//                            .valueShortEnough(false)
+//                            .build());
+//                    }
                 }
             });
             
-      
-            if (!fields.isEmpty()) {
-                notes = "Issues: "+"\r\n"+msg.toString();
+            String link = cp.projectUrl().replace(".git", "") + "/merge_requests/" + cp.mergeRequestIid();
+            if (msg.length() > 4) {
+                notes = "\r\n## Issues: \r\n" + msg.toString();
+                fields.add(Field.builder()
+                        .value("*Failed! Please review it!*")
+                        .valueShortEnough(false)
+                        .build());
                 attachments.add(Attachment.builder()
+                        .title(" :rage: :underage:  Review " + pjfull)
+                        .titleLink(link)
                         .fields(fields)
-                        .color("warning")
+                        .color("danger")
                         .build());
             }else{
                 fields.add(Field.builder()
@@ -99,6 +105,7 @@ public class GitPostTask implements PostJob {
                         .build());
                 attachments.add(Attachment.builder()
                         .title(":100: :airplane: " + pjfull+"\r\n")
+                        .titleLink(link)
                         .fields(fields)
                         .color("good")
                         .build());
@@ -113,8 +120,7 @@ public class GitPostTask implements PostJob {
             Payload payload = Payload.builder()
                     .channel(cp.slackChannel())
                     .username(context.settings().getString("ckss.user"))
-                    .text("Analyzed MergeRequest !" + cp.mergeRequestIid() + 
-                            (fields.isEmpty() ? "" : " At: \n :rage: :underage: " + pjfull))
+                    .text("Analyzed Merge Request:   !" + cp.mergeRequestIid())
                     .attachments(attachments)
                     .build();
 

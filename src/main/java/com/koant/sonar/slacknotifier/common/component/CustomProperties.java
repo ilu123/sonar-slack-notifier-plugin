@@ -16,6 +16,7 @@ import org.sonar.api.utils.System2;
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ScannerSide
 public class CustomProperties {
+    public static final String GIT_PROJ_URL = "sonar.cks.project.url";
     public static final String GIT_PROJ_HOST = "sonar.cks.project.host";
     public static final String GIT_MR_IID = "sonar.cks.mr.iid";
     public static final String GIT_PROJ_ID = "sonar.cks.project.id";
@@ -62,11 +63,23 @@ public class CustomProperties {
         return this.mSettings.getBoolean(GIT_NOTE_ENABLE);
     }
 
+    public String projectUrl(){
+        return this.mSettings.getString(GIT_PROJ_URL);
+    }
+    
     public static List<PropertyDefinition> getProperties() {
       return asList(
         PropertyDefinition.builder(GIT_PROJ_HOST)
             .category(CATEGORY)
             .name(GIT_PROJ_HOST)
+            .subCategory(SUB_CATEGORY)
+            .defaultValue("")
+            .description("")
+            .onQualifiers(Qualifiers.PROJECT)
+            .build(),
+        PropertyDefinition.builder(GIT_PROJ_URL)
+            .category(CATEGORY)
+            .name(GIT_PROJ_URL)
             .subCategory(SUB_CATEGORY)
             .defaultValue("")
             .description("")
