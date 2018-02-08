@@ -86,19 +86,22 @@ public class GitPostTask implements PostJob {
             });
             
             String link = cp.projectUrl().replace(".git", "") + "/merge_requests/" + cp.mergeRequestIid();
+            String pretext = "";
             if (msg.length() > 4) {
+                pretext = "Analyzed Merge Request:   [!" + cp.mergeRequestIid() + "](" + link + ")";
                 notes = "\r\n## Issues: \r\n" + msg.toString();
                 fields.add(Field.builder()
                         .value("*Failed! Please review it!*")
                         .valueShortEnough(false)
                         .build());
                 attachments.add(Attachment.builder()
-                        .title(" :rage: :underage:  Review " + pjfull)
+                        .title(" :rage: :underage:  Review: " + pjfull)
                         .titleLink(link)
                         .fields(fields)
                         .color("danger")
                         .build());
             }else{
+                pretext = "Analyzed Merge Request:  [!" + cp.mergeRequestIid() + "](" + link + ")";
                 fields.add(Field.builder()
                         .value("Passed!")
                         .valueShortEnough(false)
@@ -120,7 +123,7 @@ public class GitPostTask implements PostJob {
             Payload payload = Payload.builder()
                     .channel(cp.slackChannel())
                     .username(context.settings().getString("ckss.user"))
-                    .text("Analyzed Merge Request:   !" + cp.mergeRequestIid())
+                    .text(pretext)
                     .attachments(attachments)
                     .build();
 
