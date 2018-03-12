@@ -30,6 +30,7 @@ Download the
 To build the plugin simply run
 ```
 mvn clean package
+mvn clean package -Dmaven.test.skip=true
 ```
 
 
