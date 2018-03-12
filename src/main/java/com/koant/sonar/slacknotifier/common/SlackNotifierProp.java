@@ -5,6 +5,10 @@ import com.koant.sonar.slacknotifier.SlackNotifierPlugin;
 public enum SlackNotifierProp {
 
     /**
+     * The Sonar URL shown in slack message
+     */
+    SONAR("ckss.sonar.url"),
+    /**
      * The Slack Incoming Web Hook URL
      */
     HOOK("ckss.hook"),

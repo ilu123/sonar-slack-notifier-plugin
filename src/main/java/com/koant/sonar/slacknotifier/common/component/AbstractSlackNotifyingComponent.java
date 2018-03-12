@@ -81,7 +81,10 @@ public abstract class AbstractSlackNotifyingComponent {
      * @return
      */
     protected String getSonarServerUrl() {
-        String u = settings.getString("sonar.core.serverBaseURL");
+        String u = settings.getString(SlackNotifierProp.SONAR.property());
+        if (u == null || u.length() <= 0) {
+            u = settings.getString("sonar.core.serverBaseURL");
+        }
         if (u == null) {
             return null;
         }

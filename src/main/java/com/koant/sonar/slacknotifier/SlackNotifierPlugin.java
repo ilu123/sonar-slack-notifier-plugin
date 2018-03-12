@@ -16,6 +16,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyFieldDefinition;
 
+import com.koant.sonar.slacknotifier.common.SlackNotifierProp;
 import com.koant.sonar.slacknotifier.common.component.CustomProperties;
 import com.koant.sonar.slacknotifier.extension.task.GitPostTask;
 import com.koant.sonar.slacknotifier.extension.task.SlackPostProjectAnalysisTask;
@@ -48,13 +49,21 @@ public class SlackNotifierPlugin implements Plugin {
 
     
     private void addPluginPropertyDefinitions(List<Object> extensions) {
+        extensions.add(PropertyDefinition.builder(SlackNotifierProp.SONAR.property())
+            .name("Sonar server url, if not set, use sonar.core.ServerURL")
+            .description("https://hostname/sonar")
+            .type(PropertyType.STRING)
+            .category(CATEGORY)
+            .subCategory(SUBCATEGORY)
+            .index(0)
+            .build());
         extensions.add(PropertyDefinition.builder(HOOK.property())
             .name("Slack web integration hook")
             .description("https://api.slack.com/incoming-webhooks")
             .type(PropertyType.STRING)
             .category(CATEGORY)
             .subCategory(SUBCATEGORY)
-            .index(0)
+            .index(1)
             .build());
         extensions.add(PropertyDefinition.builder(USER.property())
             .name("Slack user alias")
@@ -63,7 +72,7 @@ public class SlackNotifierPlugin implements Plugin {
             .type(PropertyType.STRING)
             .category(CATEGORY)
             .subCategory(SUBCATEGORY)
-            .index(1)
+            .index(2)
             .build());
         extensions.add(PropertyDefinition.builder(ENABLED.property())
             .name("Plugin enabled")
@@ -72,7 +81,7 @@ public class SlackNotifierPlugin implements Plugin {
             .type(PropertyType.BOOLEAN)
             .category(CATEGORY)
             .subCategory(SUBCATEGORY)
-            .index(2)
+            .index(3)
             .build());
         extensions.add(
             PropertyDefinition.builder(CONFIG.property())
@@ -81,7 +90,7 @@ public class SlackNotifierPlugin implements Plugin {
                         "If a slack channel is not configured for a project, no slack message will be sent for project.")
                 .category(CATEGORY)
                 .subCategory(SUBCATEGORY)
-                .index(3)
+                .index(4)
                 .fields(
                     PropertyFieldDefinition.build(PROJECT.property())
                         .name("Project Key")
