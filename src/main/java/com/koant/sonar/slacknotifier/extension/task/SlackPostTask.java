@@ -1,6 +1,7 @@
 package com.koant.sonar.slacknotifier.extension.task;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
@@ -12,6 +13,7 @@ import org.sonar.api.utils.log.Loggers;
 import com.github.seratch.jslack.Slack;
 import com.github.seratch.jslack.api.webhook.Payload;
 import com.github.seratch.jslack.api.webhook.WebhookResponse;
+import com.google.protobuf.Option;
 import com.koant.sonar.slacknotifier.common.component.AbstractSlackNotifyingComponent;
 import com.koant.sonar.slacknotifier.common.component.CustomProperties;
 import com.koant.sonar.slacknotifier.common.component.ProjectConfig;
@@ -53,33 +55,37 @@ public class SlackPostTask extends AbstractSlackNotifyingComponent implements Po
 
         String projectKey = analysis.getProject().getKey();
 
-        Optional<ProjectConfig> projectConfigOptional = getProjectConfig(projectKey);
-        if (!projectConfigOptional.isPresent()) {
-            return;
-        }
-
-        ProjectConfig projectConfig = projectConfigOptional.get();
-        if (shouldSkipSendingNotification(projectConfig, analysis.getQualityGate())) {
-            return;
-        }
-        
-        LOG.info("Slack notification will be sent: " + analysis.toString());
-        
-        Payload payload = ProjectAnalysisPayloadBuilder.of(analysis)
-                .i18n(i18n)
-                .projectConfig(projectConfig)
-                .projectUrl(projectUrl(projectKey))
-                .username(getSlackUser())
-                .build();
-    
-        try {
-            // See https://github.com/seratch/jslack
-            WebhookResponse response = slackClient.send(getSlackIncomingWebhookUrl(), payload);
-            if (!Integer.valueOf(200).equals(response.getCode())) {
-                LOG.error("Failed to post to slack, response is [{}]", response);
-            }
-        } catch (IOException e) {
-            LOG.error("Failed to send slack message", e);
+        List<Optional<ProjectConfig>> list  = getProjectConfig(projectKey);
+        if (list.size() > 0) {
+        	for (Optional<ProjectConfig> projectConfigOptional : list) {
+		        if (!projectConfigOptional.isPresent()) {
+		            continue;
+		        }
+		
+		        ProjectConfig projectConfig = projectConfigOptional.get();
+		        if (shouldSkipSendingNotification(projectConfig, analysis.getQualityGate())) {
+		        	continue;
+		        }
+		        
+		        LOG.info("Slack notification will be sent: " + analysis.toString());
+		        
+		        Payload payload = ProjectAnalysisPayloadBuilder.of(analysis)
+		                .i18n(i18n)
+		                .projectConfig(projectConfig)
+		                .projectUrl(projectUrl(projectKey))
+		                .username(getSlackUser())
+		                .build();
+		    
+		        try {
+		            // See https://github.com/seratch/jslack
+		            WebhookResponse response = slackClient.send(getSlackIncomingWebhookUrl(), payload);
+		            if (!Integer.valueOf(200).equals(response.getCode())) {
+		                LOG.error("Failed to post to slack, response is [{}]", response);
+		            }
+		        } catch (IOException e) {
+		            LOG.error("Failed to send slack message", e);
+		        }
+        	}
         }
     }
 

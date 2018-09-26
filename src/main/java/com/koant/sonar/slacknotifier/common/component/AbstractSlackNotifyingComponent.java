@@ -1,5 +1,6 @@
 package com.koant.sonar.slacknotifier.common.component;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -94,23 +95,24 @@ public abstract class AbstractSlackNotifyingComponent {
         return u + "/";
     }
 
-    protected Optional<ProjectConfig> getProjectConfig(String projectKey) {
+    protected List<Optional<ProjectConfig>> getProjectConfig(String projectKey) {
         List<ProjectConfig> projectConfigs = projectConfigMap.keySet()
                 .stream()
                 .filter(key -> key.endsWith("*") ? projectKey.startsWith(key.substring(0, key.length() - 1))
                         : key.equals(projectKey))
                 .map(projectConfigMap::get)
                 .collect(Collectors.toList());
+        ArrayList<Optional<ProjectConfig>> ret = new ArrayList<Optional<ProjectConfig>>();
         // Not configured at all
         if (projectConfigs.isEmpty()) {
             LOG.info("Could not find config for project [{}] in [{}]", projectKey, projectConfigMap);
-            return Optional.empty();
+            ret.add(Optional.empty());
+        }else if(projectConfigs.size() > 1) {
+        	for (ProjectConfig pc : projectConfigs) {
+        		ret.add(Optional.of(pc));
+        	}
         }
-
-        if(projectConfigs.size() > 1) {
-            LOG.warn("More than 1 project key was matched. Using first one: {}", projectConfigs.get(0).getProjectKey());
-        }
-        return Optional.of(projectConfigs.get(0));
+        return ret;
     }
 
     private static Map<String, ProjectConfig> buildProjectConfigByProjectKeyMap(Settings settings) {

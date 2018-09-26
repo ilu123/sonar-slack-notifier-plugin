@@ -12,3 +12,4 @@
 **/.idea/
 **/*.iml
 sonar-project.properties
+/bin/
