@@ -27,7 +27,7 @@ public abstract class AbstractSlackNotifyingComponent {
     private static final Logger LOG = Loggers.get(AbstractSlackNotifyingComponent.class);
 
     private Settings settings;
-    private Map<String, ProjectConfig> projectConfigMap = Collections.emptyMap();
+    private List<Map<String, ProjectConfig>> projectConfigMap = Collections.emptyList();
 
     public AbstractSlackNotifyingComponent(CustomProperties cp){this.settings = cp.getSettings();}
     public AbstractSlackNotifyingComponent(Settings settings){ this.settings = settings;}
@@ -54,13 +54,7 @@ public abstract class AbstractSlackNotifyingComponent {
 
     private void refreshProjectConfigs() {
         LOG.info("Refreshing project configs");
-        Set<ProjectConfig> oldValues = new HashSet<>();
-        this.projectConfigMap.values().forEach(c -> oldValues.add(new ProjectConfig(c)));
         this.projectConfigMap = buildProjectConfigByProjectKeyMap(settings);
-        Set<ProjectConfig> newValues = new HashSet<>(this.projectConfigMap.values());
-        if (!oldValues.equals(newValues)) {
-            LOG.info("Old configs [{}] --> new configs [{}]", oldValues, newValues);
-        }
     }
 
     protected String getSlackIncomingWebhookUrl() {
@@ -96,30 +90,34 @@ public abstract class AbstractSlackNotifyingComponent {
     }
 
     protected List<Optional<ProjectConfig>> getProjectConfig(String projectKey) {
-        List<ProjectConfig> projectConfigs = projectConfigMap.keySet()
-                .stream()
-                .filter(key -> key.endsWith("*") ? projectKey.startsWith(key.substring(0, key.length() - 1))
-                        : key.equals(projectKey))
-                .map(projectConfigMap::get)
-                .collect(Collectors.toList());
         ArrayList<Optional<ProjectConfig>> ret = new ArrayList<Optional<ProjectConfig>>();
-        // Not configured at all
-        if (projectConfigs.isEmpty()) {
-            LOG.info("Could not find config for project [{}] in [{}]", projectKey, projectConfigMap);
-            ret.add(Optional.empty());
-        }else if(projectConfigs.size() > 1) {
-        	for (ProjectConfig pc : projectConfigs) {
-        		ret.add(Optional.of(pc));
-        	}
-        }
+    	for (Map<String, ProjectConfig> m : projectConfigMap) {
+            List<ProjectConfig> projectConfigs = m.keySet()
+                    .stream()
+                    .filter(key -> key.endsWith("*") ? projectKey.startsWith(key.substring(0, key.length() - 1))
+                            : key.equals(projectKey))
+                    .map(m::get)
+                    .collect(Collectors.toList());
+            // Not configured at all
+            if (projectConfigs.isEmpty()) {
+                LOG.info("Could not find config for project [{}] in [{}]", projectKey, projectConfigMap);
+                ret.add(Optional.empty());
+            }else {
+            	for (ProjectConfig pc : projectConfigs) {
+            		ret.add(Optional.of(pc));
+            	}
+            }
+    	}
         return ret;
     }
 
-    private static Map<String, ProjectConfig> buildProjectConfigByProjectKeyMap(Settings settings) {
-        Map<String, ProjectConfig> map = new HashMap<>();
+    private static List<Map<String, ProjectConfig>> buildProjectConfigByProjectKeyMap(Settings settings) {
+    	List<Map<String, ProjectConfig>> list = Collections.emptyList();
+    	
         String[] projectConfigIndexes = settings.getStringArray(SlackNotifierProp.CONFIG.property());
         LOG.info("SlackNotifierProp.CONFIG=[{}]", projectConfigIndexes);
         for (String projectConfigIndex : projectConfigIndexes) {
+            Map<String, ProjectConfig> map = new HashMap<>();
             String projectKeyProperty = SlackNotifierProp.CONFIG.property() + "." + projectConfigIndex + "." + SlackNotifierProp.PROJECT.property();
             String projectKey = settings.getString(projectKeyProperty);
             if (projectKey == null) {
@@ -129,8 +127,9 @@ public abstract class AbstractSlackNotifyingComponent {
             ProjectConfig value = ProjectConfig.create(settings, projectConfigIndex);
             LOG.info("Found project configuration [{}]", value);
             map.put(projectKey, value);
+            list.add(map);
         }
-        return map;
+        return list;
     }
 
     protected String logRelevantSettings() {
