@@ -112,10 +112,10 @@ public abstract class AbstractSlackNotifyingComponent {
     }
 
     private static List<Map<String, ProjectConfig>> buildProjectConfigByProjectKeyMap(Settings settings) {
-    	List<Map<String, ProjectConfig>> list = Collections.emptyList();
+    	List<Map<String, ProjectConfig>> list = new ArrayList<>();
     	
         String[] projectConfigIndexes = settings.getStringArray(SlackNotifierProp.CONFIG.property());
-        LOG.info("SlackNotifierProp.CONFIG=[{}]", projectConfigIndexes);
+
         for (String projectConfigIndex : projectConfigIndexes) {
             Map<String, ProjectConfig> map = new HashMap<>();
             String projectKeyProperty = SlackNotifierProp.CONFIG.property() + "." + projectConfigIndex + "." + SlackNotifierProp.PROJECT.property();
